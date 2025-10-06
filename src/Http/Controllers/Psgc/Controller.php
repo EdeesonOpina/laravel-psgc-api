@@ -1,6 +1,6 @@
 <?php
 
-namespace EdeesonOpina\PsgcApi\Http\Controllers;
+namespace EdeesonOpina\PsgcApi\Http\Controllers\Psgc;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;

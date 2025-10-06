@@ -1,6 +1,6 @@
 <?php
 
-namespace EdeesonOpina\PsgcApi\Http\Controllers;
+namespace EdeesonOpina\PsgcApi\Http\Controllers\Psgc;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

@@ -69,10 +69,10 @@ class PsgcApiServiceProvider extends ServiceProvider
         Route::prefix(config('psgc.api_prefix', 'api/v1'))
             ->middleware(config('psgc.middleware', ['api']))
             ->group(function () {
-                Route::apiResource('regions', \EdeesonOpina\PsgcApi\Http\Controllers\RegionController::class);
-                Route::apiResource('provinces', \EdeesonOpina\PsgcApi\Http\Controllers\ProvinceController::class);
-                Route::apiResource('city-municipalities', \EdeesonOpina\PsgcApi\Http\Controllers\CityMunicipalityController::class);
-                Route::apiResource('barangays', \EdeesonOpina\PsgcApi\Http\Controllers\BarangayController::class);
+                Route::apiResource('regions', \EdeesonOpina\PsgcApi\Http\Controllers\Psgc\RegionController::class);
+                Route::apiResource('provinces', \EdeesonOpina\PsgcApi\Http\Controllers\Psgc\ProvinceController::class);
+                Route::apiResource('city-municipalities', \EdeesonOpina\PsgcApi\Http\Controllers\Psgc\CityMunicipalityController::class);
+                Route::apiResource('barangays', \EdeesonOpina\PsgcApi\Http\Controllers\Psgc\BarangayController::class);
             });
     }
 }
