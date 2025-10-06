@@ -44,6 +44,29 @@ php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.cs
 - **Laravel Framework**: Built with Laravel 11 for reliability and performance
 - **Public Access**: Free API for public use and digital integration
 
+## 📋 Requirements
+
+### System Requirements
+- **PHP**: 8.1 or higher
+- **Laravel**: 9.x, 10.x, 11.x, or 12.x
+- **Database**: MySQL, PostgreSQL, SQLite, or SQL Server
+- **Node.js**: 16.x or higher (for installation script)
+
+### PHP Extensions
+- `ext-pdo` - Database connectivity
+- `ext-mbstring` - String handling
+- `ext-openssl` - Security features
+- `ext-tokenizer` - Code parsing
+- `ext-xml` - XML processing
+- `ext-ctype` - Character type checking
+- `ext-json` - JSON processing
+- `ext-bcmath` - Arbitrary precision mathematics
+
+### Laravel Package Requirements
+- `illuminate/support`: ^9.0|^10.0|^11.0|^12.0
+- `illuminate/database`: ^9.0|^10.0|^11.0|^12.0
+- `illuminate/console`: ^9.0|^10.0|^11.0|^12.0
+
 ## 📊 Data Statistics
 
 - **Regions**: 18

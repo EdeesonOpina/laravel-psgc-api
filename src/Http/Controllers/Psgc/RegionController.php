@@ -11,28 +11,39 @@ class RegionController extends Controller
     public function index(Request $request)
     {
         $q = $request->string('q')->toString();
-        $per = min(max((int) $request->get('per_page', 50), 1), 200);
-
-        $cacheKey = "v1:regions:q={$q}:per={$per}:page=" . (int)($request->get('page',1));
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $per) {
-            $rows = Region::query()
+        $perPage = $request->get('per_page');
+        
+        $cacheKey = "v1:regions:q={$q}:per=" . ($perPage ?: 'all');
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $perPage) {
+            $query = Region::query()
                 ->when($q, fn($s) => $s->where('name','LIKE',"%{$q}%")
                                         ->orWhere('code','LIKE',"%{$q}%"))
-                ->orderBy('name')
-                ->paginate($per);
+                ->orderBy('name');
             
-            return response()->json([
-                'table' => 'regions',
-                'rows' => $rows->items(),
-                'pagination' => [
-                    'current_page' => $rows->currentPage(),
-                    'per_page' => $rows->perPage(),
-                    'total' => $rows->total(),
-                    'last_page' => $rows->lastPage(),
-                    'from' => $rows->firstItem(),
-                    'to' => $rows->lastItem()
-                ]
-            ]);
+            if ($perPage) {
+                $per = min(max((int) $perPage, 1), 200);
+                $rows = $query->paginate($per);
+                
+                return response()->json([
+                    'table' => 'regions',
+                    'rows' => $rows->items(),
+                    'pagination' => [
+                        'current_page' => $rows->currentPage(),
+                        'per_page' => $rows->perPage(),
+                        'total' => $rows->total(),
+                        'last_page' => $rows->lastPage(),
+                        'from' => $rows->firstItem(),
+                        'to' => $rows->lastItem()
+                    ]
+                ]);
+            } else {
+                $rows = $query->get();
+                
+                return response()->json([
+                    'table' => 'regions',
+                    'rows' => $rows
+                ]);
+            }
         });
     }
 

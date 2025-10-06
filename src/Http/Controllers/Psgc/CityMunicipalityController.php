@@ -16,11 +16,12 @@ class CityMunicipalityController extends Controller
         $provinceCode = $request->string('province_code')->toString();
         $regionCode = $request->string('region_code')->toString();
         $type = $request->string('type')->toString(); // City|Municipality
-        $per = min(max((int) $request->get('per_page', 50), 1), 200);
+        $perPage = $request->get('per_page', 50); // Default pagination for city municipalities
 
-        $cacheKey = "v1:cm:q={$q}:prov={$provinceCode}:reg={$regionCode}:type={$type}:per={$per}:page=".(int)$request->get('page',1);
+        $cacheKey = "v1:cm:q={$q}:prov={$provinceCode}:reg={$regionCode}:type={$type}:per={$perPage}:page=" . (int)($request->get('page', 1));
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $provinceCode, $regionCode, $type, $per) {
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $provinceCode, $regionCode, $type, $perPage) {
+            $per = min(max((int) $perPage, 1), 200);
             $rows = CityMunicipality::query()
                 ->when($provinceCode, function ($s) use ($provinceCode) {
                     $provinceId = optional(Province::where('code',$provinceCode)->first())->id;
@@ -34,7 +35,7 @@ class CityMunicipalityController extends Controller
                 ->when($q, fn($s) => $s->where('name','LIKE',"%{$q}%")->orWhere('code','LIKE',"%{$q}%"))
                 ->orderBy('name')
                 ->paginate($per);
-
+            
             return response()->json([
                 'table' => 'city_municipalities',
                 'rows' => $rows->items(),
