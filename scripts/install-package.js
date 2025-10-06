@@ -71,6 +71,17 @@ try {
     console.log('You can run the conversion manually: node data/convert_psgc_to_csv.js');
 }
 
+// Publish PSGC migrations and config
+console.log('📦 Publishing PSGC migrations and config...');
+try {
+    execSync('php artisan vendor:publish --provider="EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider" --tag="psgc-migrations" --force', { stdio: 'inherit' });
+    execSync('php artisan vendor:publish --provider="EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider" --tag="psgc-config" --force', { stdio: 'inherit' });
+    console.log('✓ PSGC migrations and config published');
+} catch (error) {
+    console.log('❌ Failed to publish PSGC files');
+    console.log('You can publish manually: php artisan vendor:publish --provider="EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider"');
+}
+
 // Run migrations
 console.log('🗄️ Running database migrations...');
 try {
