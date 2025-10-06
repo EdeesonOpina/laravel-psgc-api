@@ -53,7 +53,7 @@ php artisan migrate
 
 ### 6. Import PSGC Data
 ```bash
-php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv
+php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 ```
 
 ### 7. Start the Server
@@ -162,7 +162,7 @@ npm install @jobuntux/psgc@latest
 node data/convert_psgc_to_csv.js
 
 # Import updated data (truncate existing)
-php artisan psgc:import --truncate --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv
+php artisan psgc:import --truncate --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 ```
 
 ## 🚨 Troubleshooting

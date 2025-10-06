@@ -48,7 +48,7 @@ npm install @jobuntux/psgc
 node vendor/edeesonopina/laravel-psgc-api/scripts/convert_psgc_to_csv.js
 
 # Import the data
-php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv
+php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 ```
 
 ### 4. Start Using the API
@@ -67,13 +67,13 @@ Your API is now available at:
 ### Import Data
 ```bash
 # Import all data
-php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv
+php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 
 # Dry run (validate only)
-php artisan psgc:import --regions=data/regions.csv --dry-run
+php artisan psgc:import --regions=database/psgc/data/regions.csv --dry-run
 
 # Truncate and re-import
-php artisan psgc:import --truncate --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv
+php artisan psgc:import --truncate --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 ```
 
 ### Export Data
@@ -198,7 +198,7 @@ npm install @jobuntux/psgc@latest
 node vendor/edeesonopina/laravel-psgc-api/scripts/convert_psgc_to_csv.js
 
 # Import updated data
-php artisan psgc:import --truncate --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv
+php artisan psgc:import --truncate --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 ```
 
 ## 🙏 Acknowledgments
@@ -206,7 +206,7 @@ php artisan psgc:import --truncate --regions=data/regions.csv --provinces=data/p
 This package is powered by:
 - **[@jobuntux/psgc](https://www.npmjs.com/package/@jobuntux/psgc)** - Official PSGC data package
 - **Philippine Statistics Authority (PSA)** - Official data source
-- **Edeeson Opina** - Package Developer ([https://edeesonopina.vercel.app/](https://edeesonopina.vercel.app/))
+- **Edeeson Opina** - Full Stack Web Developer ([https://edeesonopina.vercel.app/](https://edeesonopina.vercel.app/))
 
 ## 📄 License
 

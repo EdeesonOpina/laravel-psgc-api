@@ -40,11 +40,11 @@ try {
     }
 }
 
-// Create data directory
-const dataDir = path.join(process.cwd(), 'data');
+// Create PSGC data directory
+const dataDir = path.join(process.cwd(), 'database', 'psgc', 'data');
 if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
-    console.log('✓ Created data directory');
+    fs.mkdirSync(dataDir, { recursive: true });
+    console.log('✓ Created PSGC data directory');
 }
 
 // Copy conversion script
@@ -95,11 +95,11 @@ try {
 // Import data
 console.log('📥 Importing PSGC data...');
 try {
-    execSync('php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv', { stdio: 'inherit' });
+    execSync('php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv', { stdio: 'inherit' });
     console.log('✓ PSGC data imported successfully');
 } catch (error) {
     console.log('❌ Failed to import PSGC data');
-    console.log('You can import manually: php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv');
+    console.log('You can import manually: php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv');
 }
 
 console.log('\n🎉 PSGC API Package setup completed!');
