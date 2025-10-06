@@ -8,9 +8,9 @@
  * Developer: Edeeson Opina (https://edeesonopina.vercel.app/)
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
 console.log('🚀 Setting up PSGC API Package...');
 
@@ -91,6 +91,6 @@ console.log('\n🎉 PSGC API Package setup completed!');
 console.log('\n📚 Next steps:');
 console.log('1. Start your Laravel server: php artisan serve');
 console.log('2. Test the API: curl http://localhost:8000/api/v1/regions');
-console.log('3. Check the documentation: vendor/edeeson/psgc-api/PACKAGE_README.md');
+console.log('3. Check the documentation: vendor/edeesonopina/laravel-psgc-api/PACKAGE_README.md');
 console.log('\n🙏 Thank you for using PSGC API Package!');
 console.log('Developed by: Edeeson Opina (https://edeesonopina.vercel.app/)');
