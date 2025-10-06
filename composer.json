@@ -46,19 +46,19 @@
     "extra": {
         "laravel": {
             "providers": [
-                "EdeesonOpina\\PsgcApi\\PsgcApiServiceProvider"
+                "EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider"
             ]
         }
     },
     "scripts": {
         "post-install-cmd": [
             "@php -r \"file_exists('database/migrations') || mkdir('database/migrations', 0755, true);\"",
-            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\PsgcApiServiceProvider\" --tag=\"psgc-migrations\"",
-            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\PsgcApiServiceProvider\" --tag=\"psgc-config\""
+            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider\" --tag=\"psgc-migrations\"",
+            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider\" --tag=\"psgc-config\""
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\PsgcApiServiceProvider\" --tag=\"psgc-migrations\" --force",
-            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\PsgcApiServiceProvider\" --tag=\"psgc-config\" --force"
+            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider\" --tag=\"psgc-migrations\" --force",
+            "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider\" --tag=\"psgc-config\" --force"
         ]
     },
     "version": "1.0.1",
