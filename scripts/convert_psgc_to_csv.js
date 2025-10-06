@@ -12,10 +12,10 @@ import path from 'path';
  * Developer: Edeeson Opina (https://edeesonopina.vercel.app/)
  */
 
-// Create data directory if it doesn't exist
-const dataDir = path.join(process.cwd(), 'data');
+// Create PSGC data directory if it doesn't exist
+const dataDir = path.join(process.cwd(), 'database', 'psgc', 'data');
 if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
+    fs.mkdirSync(dataDir, { recursive: true });
 }
 
 const psgcDataDir = path.join(process.cwd(), 'node_modules', '@jobuntux', 'psgc', 'data', '2025-2Q');
@@ -80,8 +80,8 @@ const barangaysCsv = [
 fs.writeFileSync(path.join(dataDir, 'barangays.csv'), barangaysCsv);
 console.log(`✓ Converted ${barangaysData.length} barangays`);
 
-console.log('\n✅ All PSGC data converted to CSV format in data/ directory');
+console.log('\n✅ All PSGC data converted to CSV format in database/psgc/data/ directory');
 console.log('Data source: Official PSA PSGC 2025 2Q');
 console.log('\nTo import the data, run:');
-console.log('php artisan psgc:import --regions=data/regions.csv --provinces=data/provinces.csv --city_municipalities=data/city_municipalities.csv --barangays=data/barangays.csv');
+console.log('php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv');
 
