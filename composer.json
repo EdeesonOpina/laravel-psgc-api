@@ -61,7 +61,7 @@
             "@php artisan vendor:publish --provider=\"EdeesonOpina\\PsgcApi\\Providers\\PsgcApiServiceProvider\" --tag=\"psgc-config\" --force"
         ]
     },
-    "version": "1.0.3",
+    "version": "1.0.4",
     "minimum-stability": "stable",
     "prefer-stable": true
 }
