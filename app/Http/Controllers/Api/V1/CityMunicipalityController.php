@@ -36,7 +36,18 @@ class CityMunicipalityController extends Controller
                 ->orderBy('name')
                 ->paginate($per);
 
-            return response()->json($rows);
+            return response()->json([
+                'table' => 'city_municipalities',
+                'rows' => $rows->items(),
+                'pagination' => [
+                    'current_page' => $rows->currentPage(),
+                    'per_page' => $rows->perPage(),
+                    'total' => $rows->total(),
+                    'last_page' => $rows->lastPage(),
+                    'from' => $rows->firstItem(),
+                    'to' => $rows->lastItem()
+                ]
+            ]);
         });
     }
 
@@ -46,6 +57,9 @@ class CityMunicipalityController extends Controller
             fn() => CityMunicipality::where('code',$code)->first()
         );
         abort_unless($row, 404, 'City/Municipality not found');
-        return response()->json($row);
+        return response()->json([
+            'table' => 'city_municipalities',
+            'rows' => [$row]
+        ]);
     }
 }

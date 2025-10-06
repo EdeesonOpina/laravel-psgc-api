@@ -27,7 +27,18 @@ class ProvinceController extends Controller
                 ->when($q, fn($s) => $s->where('name','LIKE',"%{$q}%")->orWhere('code','LIKE',"%{$q}%"))
                 ->orderBy('name')
                 ->paginate($per);
-            return response()->json($rows);
+            return response()->json([
+                'table' => 'provinces',
+                'rows' => $rows->items(),
+                'pagination' => [
+                    'current_page' => $rows->currentPage(),
+                    'per_page' => $rows->perPage(),
+                    'total' => $rows->total(),
+                    'last_page' => $rows->lastPage(),
+                    'from' => $rows->firstItem(),
+                    'to' => $rows->lastItem()
+                ]
+            ]);
         });
     }
 
@@ -37,6 +48,9 @@ class ProvinceController extends Controller
             fn() => Province::where('code',$code)->first()
         );
         abort_unless($row, 404, 'Province not found');
-        return response()->json($row);
+        return response()->json([
+            'table' => 'provinces',
+            'rows' => [$row]
+        ]);
     }
 }

@@ -21,7 +21,19 @@ class RegionController extends Controller
                                         ->orWhere('code','LIKE',"%{$q}%"))
                 ->orderBy('name')
                 ->paginate($per);
-            return response()->json($rows);
+            
+            return response()->json([
+                'table' => 'regions',
+                'rows' => $rows->items(),
+                'pagination' => [
+                    'current_page' => $rows->currentPage(),
+                    'per_page' => $rows->perPage(),
+                    'total' => $rows->total(),
+                    'last_page' => $rows->lastPage(),
+                    'from' => $rows->firstItem(),
+                    'to' => $rows->lastItem()
+                ]
+            ]);
         });
     }
 
@@ -32,6 +44,10 @@ class RegionController extends Controller
             Region::where('code',$code)->first()
         );
         abort_unless($region, 404, 'Region not found');
-        return response()->json($region);
+        
+        return response()->json([
+            'table' => 'regions',
+            'rows' => [$region]
+        ]);
     }
 }

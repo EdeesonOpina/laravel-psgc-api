@@ -40,7 +40,18 @@ class BarangayController extends Controller
                 ->orderBy('name')
                 ->paginate($per);
 
-            return response()->json($rows);
+            return response()->json([
+                'table' => 'barangays',
+                'rows' => $rows->items(),
+                'pagination' => [
+                    'current_page' => $rows->currentPage(),
+                    'per_page' => $rows->perPage(),
+                    'total' => $rows->total(),
+                    'last_page' => $rows->lastPage(),
+                    'from' => $rows->firstItem(),
+                    'to' => $rows->lastItem()
+                ]
+            ]);
         });
     }
 
@@ -50,6 +61,9 @@ class BarangayController extends Controller
             fn() => Barangay::where('code',$code)->first()
         );
         abort_unless($row, 404, 'Barangay not found');
-        return response()->json($row);
+        return response()->json([
+            'table' => 'barangays',
+            'rows' => [$row]
+        ]);
     }
 }
