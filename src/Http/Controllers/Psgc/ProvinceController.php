@@ -12,57 +12,28 @@ class ProvinceController extends Controller
     public function index(Request $request)
     {
         $q = $request->string('q')->toString();
-        $regionCode = $request->string('region_code')->toString();
-        $perPage = $request->get('per_page');
+        $regionId = $request->get('region_id');
 
-        $cacheKey = "v1:provinces:q={$q}:region={$regionCode}:per=" . ($perPage ?: 'all');
+        $cacheKey = "v1:provinces:q={$q}:region={$regionId}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $regionCode, $perPage) {
-            $query = Province::query()
-                ->when($regionCode, function ($s) use ($regionCode) {
-                    $regionId = optional(Region::where('code',$regionCode)->first())->id;
-                    $s->where('region_id', $regionId ?? 0);
-                })
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $regionId) {
+            $provinces = Province::query()
+                ->when($regionId, fn($s) => $s->where('region_id', $regionId))
                 ->when($q, fn($s) => $s->where('name','LIKE',"%{$q}%")->orWhere('code','LIKE',"%{$q}%"))
-                ->orderBy('name');
+                ->orderBy('name')
+                ->get();
             
-            if ($perPage) {
-                $per = min(max((int) $perPage, 1), 200);
-                $rows = $query->paginate($per);
-                
-                return response()->json([
-                    'table' => 'provinces',
-                    'rows' => $rows->items(),
-                    'pagination' => [
-                        'current_page' => $rows->currentPage(),
-                        'per_page' => $rows->perPage(),
-                        'total' => $rows->total(),
-                        'last_page' => $rows->lastPage(),
-                        'from' => $rows->firstItem(),
-                        'to' => $rows->lastItem()
-                    ]
-                ]);
-            } else {
-                $rows = $query->get();
-                
-                return response()->json([
-                    'table' => 'provinces',
-                    'rows' => $rows
-                ]);
-            }
+            return response()->json($provinces);
         });
     }
 
-    public function show(string $code)
+    public function show(string $id)
     {
-        $row = Cache::remember("v1:province:{$code}", now()->addMinutes(30),
-            fn() => Province::where('code',$code)->first()
+        $province = Cache::remember("v1:province:{$id}", now()->addMinutes(30),
+            fn() => Province::find($id)
         );
-        abort_unless($row, 404, 'Province not found');
+        abort_unless($province, 404, 'Province not found');
         
-        return response()->json([
-            'table' => 'provinces',
-            'rows' => [$row]
-        ]);
+        return response()->json($province);
     }
 }

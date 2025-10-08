@@ -32,6 +32,23 @@ php artisan migrate
 php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=database/psgc/data/provinces.csv --city_municipalities=database/psgc/data/city_municipalities.csv --barangays=database/psgc/data/barangays.csv
 ```
 
+### Customization Options
+
+**Publish Controllers** (to customize API logic):
+```bash
+php artisan vendor:publish --provider="EdeesonOpina\PsgcApi\Providers\PsgcApiServiceProvider" --tag="psgc-controllers"
+```
+
+**Publish Routes** (to customize API endpoints):
+```bash
+php artisan vendor:publish --provider="EdeesonOpina\PsgcApi\Providers\PsgcApiServiceProvider" --tag="psgc-routes"
+```
+
+**Publish Models** (to add custom relationships):
+```bash
+php artisan vendor:publish --provider="EdeesonOpina\PsgcApi\Providers\PsgcApiServiceProvider" --tag="psgc-models"
+```
+
 **Package Documentation**: [PACKAGE_README.md](PACKAGE_README.md) | [Installation Guide](INSTALLATION_GUIDE.md)
 
 ---
@@ -82,68 +99,158 @@ php artisan psgc:import --regions=database/psgc/data/regions.csv --provinces=dat
 http://localhost:8000/api/v1
 ```
 
-**Important**: All endpoint parameters use **PSGC codes** (not database IDs). PSGC codes are the official Philippine Standard Geographic Codes used by the Philippine Statistics Authority.
+**Important**: All endpoint parameters use **database IDs** (not PSGC codes). This makes the API more developer-friendly and consistent with standard REST practices.
 
 ### Regions
 - **GET** `/regions` - List all regions
-- **GET** `/regions/{code}` - Get specific region by PSGC code
-- **POST** `/regions` - Create new region
-- **PUT/PATCH** `/regions/{code}` - Update region by PSGC code
-- **DELETE** `/regions/{code}` - Delete region by PSGC code
+- **GET** `/regions/{id}` - Get specific region by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=manila`)
 
 ### Provinces
 - **GET** `/provinces` - List all provinces
-- **GET** `/provinces/{code}` - Get specific province by PSGC code
-- **POST** `/provinces` - Create new province
-- **PUT/PATCH** `/provinces/{code}` - Update province by PSGC code
-- **DELETE** `/provinces/{code}` - Delete province by PSGC code
+- **GET** `/provinces/{id}` - Get specific province by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=manila`)
+- `region_id` - Filter by region ID (e.g., `?region_id=19`)
 
 ### Cities/Municipalities
 - **GET** `/city-municipalities` - List all cities and municipalities
-- **GET** `/city-municipalities/{code}` - Get specific city/municipality by PSGC code
-- **POST** `/city-municipalities` - Create new city/municipality
-- **PUT/PATCH** `/city-municipalities/{code}` - Update city/municipality by PSGC code
-- **DELETE** `/city-municipalities/{code}` - Delete city/municipality by PSGC code
+- **GET** `/city-municipalities/{id}` - Get specific city/municipality by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=manila`)
+- `province_id` - Filter by province ID (e.g., `?province_id=86`)
+- `region_id` - Filter by region ID (e.g., `?region_id=19`)
+- `type` - Filter by type: `City` or `Municipality` (e.g., `?type=City`)
+- `limit` - Limit results (max 1000, e.g., `?limit=50`)
 
 ### Barangays
 - **GET** `/barangays` - List all barangays
-- **GET** `/barangays/{code}` - Get specific barangay by PSGC code
-- **POST** `/barangays` - Create new barangay
-- **PUT/PATCH** `/barangays/{code}` - Update barangay by PSGC code
-- **DELETE** `/barangays/{code}` - Delete barangay by PSGC code
+- **GET** `/barangays/{id}` - Get specific barangay by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=malate`)
+- `city_municipality_id` - Filter by city/municipality ID (e.g., `?city_municipality_id=44`)
+- `province_id` - Filter by province ID (e.g., `?province_id=86`)
+- `region_id` - Filter by region ID (e.g., `?region_id=19`)
+- `limit` - Limit results (max 1000, e.g., `?limit=100`)
 
 ## 📝 Response Format
 
-All endpoints return JSON responses with pagination:
+All endpoints return JSON responses directly (no pagination wrapper):
 
 ```json
+[
+  {
+    "id": 19,
+    "code": "1300000000",
+    "name": "National Capital Region (NCR)",
+    "short_name": "13",
+    "island_group": "",
+    "status": "active",
+    "deleted_at": null,
+    "created_at": "2025-10-06T05:14:41.000000Z",
+    "updated_at": "2025-10-06T05:14:41.000000Z"
+  }
+]
+```
+
+## 🚀 API Examples
+
+### Get All Regions
+```bash
+curl http://localhost:8000/api/v1/regions
+```
+
+### Get Specific Region
+```bash
+curl http://localhost:8000/api/v1/regions/19
+```
+
+### Get Provinces in NCR
+```bash
+curl http://localhost:8000/api/v1/provinces?region_id=19
+```
+
+### Get Cities in a Province
+```bash
+curl http://localhost:8000/api/v1/city-municipalities?province_id=86&limit=10
+```
+
+### Get Barangays in Manila
+```bash
+curl http://localhost:8000/api/v1/barangays?city_municipality_id=44&limit=20
+```
+
+### Search for Barangays
+```bash
+curl http://localhost:8000/api/v1/barangays?q=malate&limit=5
+```
+
+### Get All Cities (Limited)
+```bash
+curl http://localhost:8000/api/v1/city-municipalities?type=City&limit=50
+```
+
+## 🔄 Migration Guide (v1.0.0 → v1.1.0)
+
+### Breaking Changes
+
+**⚠️ Important**: v1.1.0 contains breaking changes. Existing applications using v1.0.0 will need updates.
+
+#### 1. Endpoint Parameters Changed
+```bash
+# v1.0.0 (Old)
+GET /api/v1/regions/{code}          # Used PSGC codes
+GET /api/v1/provinces?region_code=1300000000
+
+# v1.1.0 (New)
+GET /api/v1/regions/{id}            # Uses database IDs
+GET /api/v1/provinces?region_id=19
+```
+
+#### 2. Response Format Changed
+```json
+// v1.0.0 (Old)
 {
-  "current_page": 1,
-  "data": [
-    {
-      "id": 1,
-      "code": "1300000000",
-      "name": "National Capital Region (NCR)",
-      "short_name": "13",
-      "island_group": null,
-      "status": "active",
-      "deleted_at": null,
-      "created_at": "2025-10-06T05:14:41.000000Z",
-      "updated_at": "2025-10-06T05:14:41.000000Z"
-    }
-  ],
-  "first_page_url": "http://localhost:8000/api/v1/regions?page=1",
-  "from": 1,
-  "last_page": 1,
-  "last_page_url": "http://localhost:8000/api/v1/regions?page=1",
-  "links": [...],
-  "next_page_url": null,
-  "path": "http://localhost:8000/api/v1/regions",
-  "per_page": 50,
-  "prev_page_url": null,
-  "to": 18,
-  "total": 18
+  "table": "regions",
+  "rows": [...],
+  "pagination": {...}
 }
+
+// v1.1.0 (New)
+[...]  // Direct array, no wrapper
+```
+
+#### 3. New Features Added
+- **Limit Parameter**: `?limit=50` for cities and barangays
+- **Publishable Components**: Controllers, routes, and models can be customized
+- **Improved Performance**: No pagination overhead for small datasets
+
+### Migration Steps
+
+1. **Update Package Version**:
+   ```bash
+   composer require edeesonopina/laravel-psgc-api:^1.1.0
+   ```
+
+2. **Update API Calls**:
+   - Replace `{code}` with `{id}` in URLs
+   - Replace `region_code` with `region_id` in parameters
+   - Update response parsing (remove pagination wrapper)
+
+3. **Test Your Application**:
+   - Verify all API endpoints work with new format
+   - Update frontend code to handle direct JSON arrays
+
+### Staying on v1.0.0
+
+If you prefer to stay on the stable v1.0.0:
+```bash
+composer require edeesonopina/laravel-psgc-api:1.0.0
 ```
 
 ## 🛠️ Standalone Project Setup

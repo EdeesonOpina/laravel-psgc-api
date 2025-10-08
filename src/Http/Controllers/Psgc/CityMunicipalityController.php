@@ -13,54 +13,39 @@ class CityMunicipalityController extends Controller
     public function index(Request $request)
     {
         $q = $request->string('q')->toString();
-        $provinceCode = $request->string('province_code')->toString();
-        $regionCode = $request->string('region_code')->toString();
+        $provinceId = $request->get('province_id');
+        $regionId = $request->get('region_id');
         $type = $request->string('type')->toString(); // City|Municipality
-        $perPage = $request->get('per_page', 50); // Default pagination for city municipalities
+        $limit = $request->get('limit');
 
-        $cacheKey = "v1:cm:q={$q}:prov={$provinceCode}:reg={$regionCode}:type={$type}:per={$perPage}:page=" . (int)($request->get('page', 1));
+        $cacheKey = "v1:cm:q={$q}:prov={$provinceId}:reg={$regionId}:type={$type}:limit={$limit}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $provinceCode, $regionCode, $type, $perPage) {
-            $per = min(max((int) $perPage, 1), 200);
-            $rows = CityMunicipality::query()
-                ->when($provinceCode, function ($s) use ($provinceCode) {
-                    $provinceId = optional(Province::where('code',$provinceCode)->first())->id;
-                    $s->where('province_id', $provinceId ?? 0);
-                })
-                ->when($regionCode, function ($s) use ($regionCode) {
-                    $regionId = optional(Region::where('code',$regionCode)->first())->id;
-                    $s->where('region_id', $regionId ?? 0);
-                })
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $provinceId, $regionId, $type, $limit) {
+            $query = CityMunicipality::query()
+                ->when($provinceId, fn($s) => $s->where('province_id', $provinceId))
+                ->when($regionId, fn($s) => $s->where('region_id', $regionId))
                 ->when($type, fn($s) => $s->where('type', $type))
                 ->when($q, fn($s) => $s->where('name','LIKE',"%{$q}%")->orWhere('code','LIKE',"%{$q}%"))
-                ->orderBy('name')
-                ->paginate($per);
+                ->orderBy('name');
             
-            return response()->json([
-                'table' => 'city_municipalities',
-                'rows' => $rows->items(),
-                'pagination' => [
-                    'current_page' => $rows->currentPage(),
-                    'per_page' => $rows->perPage(),
-                    'total' => $rows->total(),
-                    'last_page' => $rows->lastPage(),
-                    'from' => $rows->firstItem(),
-                    'to' => $rows->lastItem()
-                ]
-            ]);
+            if ($limit) {
+                $limit = min(max((int) $limit, 1), 1000); // Max 1000 records
+                $cityMunicipalities = $query->limit($limit)->get();
+            } else {
+                $cityMunicipalities = $query->get();
+            }
+            
+            return response()->json($cityMunicipalities);
         });
     }
 
-    public function show(string $code)
+    public function show(string $id)
     {
-        $row = Cache::remember("v1:cm:{$code}", now()->addMinutes(30),
-            fn() => CityMunicipality::where('code',$code)->first()
+        $cityMunicipality = Cache::remember("v1:cm:{$id}", now()->addMinutes(30),
+            fn() => CityMunicipality::find($id)
         );
-        abort_unless($row, 404, 'City/Municipality not found');
+        abort_unless($cityMunicipality, 404, 'City/Municipality not found');
         
-        return response()->json([
-            'table' => 'city_municipalities',
-            'rows' => [$row]
-        ]);
+        return response()->json($cityMunicipality);
     }
 }

@@ -1,11 +1,11 @@
 # PSGC API Package for Laravel
 
-[![Latest Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://packagist.org/packages/edeeson/psgc-api)
-[![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![Latest Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://packagist.org/packages/edeesonopina/laravel-psgc-api)
+[![Laravel](https://img.shields.io/badge/Laravel-9.x%20%7C%2010.x%20%7C%2011.x%20%7C%2012.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.1+-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A comprehensive Laravel package for the Philippine Standard Geographic Code (PSGC) API, providing official PSA data with import/export functionality.
+A comprehensive Laravel package for the Philippine Standard Geographic Code (PSGC) API, providing official PSA data with import/export functionality and customizable components.
 
 ## 🚀 Quick Installation
 
@@ -18,6 +18,14 @@ That's it! The package will automatically:
 - ✅ Publish configuration
 - ✅ Register commands
 - ✅ Set up API routes
+
+## 🆕 What's New in v1.1.0
+
+- **🎯 Developer-Friendly**: Uses database IDs instead of PSGC codes
+- **⚡ Better Performance**: Direct JSON responses, no pagination overhead
+- **🔧 Customizable**: Publish controllers, routes, and models for customization
+- **📊 Smart Limiting**: `limit` parameter for large datasets (cities/barangays)
+- **🔄 Migration Guide**: Clear upgrade path from v1.0.0
 
 ## 📊 What You Get
 
@@ -122,68 +130,125 @@ PSGC_RATE_LIMIT_MAX_ATTEMPTS=60
 PSGC_RATE_LIMIT_DECAY_MINUTES=1
 ```
 
+## 🎨 Customization Options
+
+### Publish Controllers (Customize API Logic)
+```bash
+php artisan vendor:publish --provider="EdeesonOpina\PsgcApi\Providers\PsgcApiServiceProvider" --tag="psgc-controllers"
+```
+This publishes controllers to `app/Http/Controllers/Psgc/` where you can customize:
+- Response formats
+- Additional validation
+- Custom business logic
+- Authentication/authorization
+
+### Publish Routes (Customize API Endpoints)
+```bash
+php artisan vendor:publish --provider="EdeesonOpina\PsgcApi\Providers\PsgcApiServiceProvider" --tag="psgc-routes"
+```
+This publishes routes to `routes/psgc-api.php` where you can:
+- Change endpoint URLs
+- Add middleware
+- Create custom routes
+- Modify route groups
+
+### Publish Models (Add Custom Relationships)
+```bash
+php artisan vendor:publish --provider="EdeesonOpina\PsgcApi\Providers\PsgcApiServiceProvider" --tag="psgc-models"
+```
+This publishes models to `app/Models/` where you can:
+- Add custom relationships
+- Add accessors/mutators
+- Add scopes
+- Extend functionality
+
+### Example: Custom Controller
+```php
+// app/Http/Controllers/Psgc/RegionController.php
+<?php
+
+namespace App\Http\Controllers\Psgc;
+
+use EdeesonOpina\PsgcApi\Http\Controllers\Psgc\Controller;
+use Illuminate\Http\Request;
+use EdeesonOpina\PsgcApi\Models\Region;
+
+class RegionController extends Controller
+{
+    public function index(Request $request)
+    {
+        // Your custom logic here
+        $regions = Region::with('provinces')->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $regions,
+            'meta' => [
+                'total' => $regions->count(),
+                'timestamp' => now()
+            ]
+        ]);
+    }
+}
+```
+
 ## 📚 API Endpoints
 
 ### Regions
 - `GET /api/v1/regions` - List all regions
-- `GET /api/v1/regions/{id}` - Get specific region
-- `POST /api/v1/regions` - Create new region
-- `PUT/PATCH /api/v1/regions/{id}` - Update region
-- `DELETE /api/v1/regions/{id}` - Delete region
+- `GET /api/v1/regions/{id}` - Get specific region by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=manila`)
 
 ### Provinces
 - `GET /api/v1/provinces` - List all provinces
-- `GET /api/v1/provinces/{id}` - Get specific province
-- `POST /api/v1/provinces` - Create new province
-- `PUT/PATCH /api/v1/provinces/{id}` - Update province
-- `DELETE /api/v1/provinces/{id}` - Delete province
+- `GET /api/v1/provinces/{id}` - Get specific province by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=manila`)
+- `region_id` - Filter by region ID (e.g., `?region_id=19`)
 
 ### Cities/Municipalities
 - `GET /api/v1/city-municipalities` - List all cities and municipalities
-- `GET /api/v1/city-municipalities/{id}` - Get specific city/municipality
-- `POST /api/v1/city-municipalities` - Create new city/municipality
-- `PUT/PATCH /api/v1/city-municipalities/{id}` - Update city/municipality
-- `DELETE /api/v1/city-municipalities/{id}` - Delete city/municipality
+- `GET /api/v1/city-municipalities/{id}` - Get specific city/municipality by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=manila`)
+- `province_id` - Filter by province ID (e.g., `?province_id=86`)
+- `region_id` - Filter by region ID (e.g., `?region_id=19`)
+- `type` - Filter by type: `City` or `Municipality` (e.g., `?type=City`)
+- `limit` - Limit results (max 1000, e.g., `?limit=50`)
 
 ### Barangays
 - `GET /api/v1/barangays` - List all barangays
-- `GET /api/v1/barangays/{id}` - Get specific barangay
-- `POST /api/v1/barangays` - Create new barangay
-- `PUT/PATCH /api/v1/barangays/{id}` - Update barangay
-- `DELETE /api/v1/barangays/{id}` - Delete barangay
+- `GET /api/v1/barangays/{id}` - Get specific barangay by database ID
+
+**Query Parameters:**
+- `q` - Search by name or code (e.g., `?q=malate`)
+- `city_municipality_id` - Filter by city/municipality ID (e.g., `?city_municipality_id=44`)
+- `province_id` - Filter by province ID (e.g., `?province_id=86`)
+- `region_id` - Filter by region ID (e.g., `?region_id=19`)
+- `limit` - Limit results (max 1000, e.g., `?limit=100`)
 
 ## 📄 Response Format
 
-All endpoints return JSON responses with pagination:
+All endpoints return JSON responses directly (no pagination wrapper):
 
 ```json
-{
-  "current_page": 1,
-  "data": [
-    {
-      "id": 1,
-      "code": "1300000000",
-      "name": "National Capital Region (NCR)",
-      "short_name": "13",
-      "island_group": null,
-      "status": "active",
-      "deleted_at": null,
-      "created_at": "2025-10-06T05:14:41.000000Z",
-      "updated_at": "2025-10-06T05:14:41.000000Z"
-    }
-  ],
-  "first_page_url": "http://localhost:8000/api/v1/regions?page=1",
-  "from": 1,
-  "last_page": 1,
-  "last_page_url": "http://localhost:8000/api/v1/regions?page=1",
-  "links": [...],
-  "next_page_url": null,
-  "path": "http://localhost:8000/api/v1/regions",
-  "per_page": 50,
-  "prev_page_url": null,
-  "to": 18,
-  "total": 18
-}
+[
+  {
+    "id": 19,
+    "code": "1300000000",
+    "name": "National Capital Region (NCR)",
+    "short_name": "13",
+    "island_group": "",
+    "status": "active",
+    "deleted_at": null,
+    "created_at": "2025-10-06T05:14:41.000000Z",
+    "updated_at": "2025-10-06T05:14:41.000000Z"
+  }
+]
 ```
 
 ## 🔄 Data Updates

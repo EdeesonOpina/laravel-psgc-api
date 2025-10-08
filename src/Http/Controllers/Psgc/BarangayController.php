@@ -14,57 +14,39 @@ class BarangayController extends Controller
     public function index(Request $request)
     {
         $q = $request->string('q')->toString();
-        $citymunCode = $request->string('citymun_code')->toString();
-        $provinceCode = $request->string('province_code')->toString();
-        $regionCode = $request->string('region_code')->toString();
-        $perPage = $request->get('per_page', 50); // Default pagination for barangays
+        $citymunId = $request->get('city_municipality_id');
+        $provinceId = $request->get('province_id');
+        $regionId = $request->get('region_id');
+        $limit = $request->get('limit');
 
-        $cacheKey = "v1:brgy:q={$q}:cm={$citymunCode}:prov={$provinceCode}:reg={$regionCode}:per={$perPage}:page=" . (int)($request->get('page', 1));
+        $cacheKey = "v1:brgy:q={$q}:cm={$citymunId}:prov={$provinceId}:reg={$regionId}:limit={$limit}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $citymunCode, $provinceCode, $regionCode, $perPage) {
-            $per = min(max((int) $perPage, 1), 200);
-            $rows = Barangay::query()
-                ->when($citymunCode, function ($s) use ($citymunCode) {
-                    $cmId = optional(CityMunicipality::where('code',$citymunCode)->first())->id;
-                    $s->where('citymun_id', $cmId ?? 0);
-                })
-                ->when($provinceCode, function ($s) use ($provinceCode) {
-                    $provinceId = optional(Province::where('code',$provinceCode)->first())->id;
-                    $s->where('province_id', $provinceId ?? 0);
-                })
-                ->when($regionCode, function ($s) use ($regionCode) {
-                    $regionId = optional(Region::where('code',$regionCode)->first())->id;
-                    $s->where('region_id', $regionId ?? 0);
-                })
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($q, $citymunId, $provinceId, $regionId, $limit) {
+            $query = Barangay::query()
+                ->when($citymunId, fn($s) => $s->where('city_municipality_id', $citymunId))
+                ->when($provinceId, fn($s) => $s->where('province_id', $provinceId))
+                ->when($regionId, fn($s) => $s->where('region_id', $regionId))
                 ->when($q, fn($s) => $s->where('name','LIKE',"%{$q}%")->orWhere('code','LIKE',"%{$q}%"))
-                ->orderBy('name')
-                ->paginate($per);
+                ->orderBy('name');
             
-            return response()->json([
-                'table' => 'barangays',
-                'rows' => $rows->items(),
-                'pagination' => [
-                    'current_page' => $rows->currentPage(),
-                    'per_page' => $rows->perPage(),
-                    'total' => $rows->total(),
-                    'last_page' => $rows->lastPage(),
-                    'from' => $rows->firstItem(),
-                    'to' => $rows->lastItem()
-                ]
-            ]);
+            if ($limit) {
+                $limit = min(max((int) $limit, 1), 1000); // Max 1000 records
+                $barangays = $query->limit($limit)->get();
+            } else {
+                $barangays = $query->get();
+            }
+            
+            return response()->json($barangays);
         });
     }
 
-    public function show(string $code)
+    public function show(string $id)
     {
-        $row = Cache::remember("v1:brgy:{$code}", now()->addMinutes(30),
-            fn() => Barangay::where('code',$code)->first()
+        $barangay = Cache::remember("v1:brgy:{$id}", now()->addMinutes(30),
+            fn() => Barangay::find($id)
         );
-        abort_unless($row, 404, 'Barangay not found');
+        abort_unless($barangay, 404, 'Barangay not found');
         
-        return response()->json([
-            'table' => 'barangays',
-            'rows' => [$row]
-        ]);
+        return response()->json($barangay);
     }
 }

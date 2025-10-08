@@ -49,6 +49,16 @@ class PsgcApiServiceProvider extends ServiceProvider
             __DIR__.'/../Models' => app_path('Models'),
         ], 'psgc-models');
 
+        // Publish controllers
+        $this->publishes([
+            __DIR__.'/../Http/Controllers' => app_path('Http/Controllers/Psgc'),
+        ], 'psgc-controllers');
+
+        // Publish routes
+        $this->publishes([
+            __DIR__.'/../Routes/api.php' => base_path('routes/psgc-api.php'),
+        ], 'psgc-routes');
+
         // Register commands
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -57,8 +67,10 @@ class PsgcApiServiceProvider extends ServiceProvider
             ]);
         }
 
-        // Load routes
-        $this->loadRoutes();
+        // Load routes only if not published
+        if (!file_exists(base_path('routes/psgc-api.php'))) {
+            $this->loadRoutes();
+        }
     }
 
     /**
